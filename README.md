@@ -80,7 +80,7 @@ JWT_EXPIRES_IN=24h              # JWT过期时间
 ADMIN_USERNAME=root             # 默认管理员用户名
 ADMIN_PASSWORD=123456           # 默认管理员密码
 ```
-
+openai国内中转api:[https://api.lzx1.top](https://api.lzx1.top)
 ## 🏃 启动服务
 
 ### 开发模式启动
