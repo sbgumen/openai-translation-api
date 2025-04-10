@@ -24,6 +24,7 @@
 - [安全建议](#-安全建议)
 - [常见问题](#-常见问题)
 - [许可证](#-许可证)
+- [联系方式](#-联系方式)
 
 ## ✨ 特性
 
@@ -498,3 +499,15 @@ API会返回适当的HTTP状态码和错误信息，便于调试和错误处理�
 ## 📄 许可证
 
 本项目采用MIT许可证 - 详见 [LICENSE](LICENSE) 文件
+
+
+## 📞 联系方式
+
+如有任何问题或建议，请通过以下方式联系我们:
+
+- 项目主页: [GitHub仓库](https://github.com/sbgumen/openai-translation-api)
+- 电子邮件: 2585579144@qq.com
+
+---
+
+Made with ❤️ by [阿泽](https://github.com/sbgumen)
