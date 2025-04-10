@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenAI翻译API文档</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css">
+  <style>
+    :root {
+      --primary-color: #3d348b;
+      --primary-light: #7678ed;
+      --secondary-color: #3c6e71;
+      --accent-color: #5285c5;
+      --success-color: #4cc9f0;
+      --warning-color: #f72585;
+      --light-bg: #f7f7f9;
+      --dark-bg: #212529;
+      --border-radius: 10px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+      color: #333;
+      position: relative;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    
+    /* Header */
+    .docs-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      color: white;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .docs-title {
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    
+    .docs-subtitle {
+      font-weight: 300;
+      opacity: 0.9;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      position: sticky;
+      top: 2rem;
+      height: calc(100vh - 4rem);
+      overflow-y: auto;
+      padding-right: 1rem;
+      padding-bottom: 2rem;
+    }
+    
+    .sidebar .nav-link {
+      color: #555;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.25rem;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+    }
+    
+    .sidebar .nav-link:hover {
+      background-color: rgba(61, 52, 139, 0.1);
+    }
+    
+    .sidebar .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+      box-shadow: var(--box-shadow);
+    }
+    
+    .sidebar-heading {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #6c757d;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+    }
+    
+    /* Content */
+    .docs-content {
+      margin-bottom: 3rem;
+    }
+    
+    .docs-section {
+      margin-bottom: 2.5rem;
+    }
+    
+    .docs-section h2 {
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+      color: var(--primary-color);
+    }
+    
+    .docs-section h3 {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--secondary-color);
+    }
+    
+    /* Cards */
+    .api-card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    
+    .api-card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-5px);
+    }
+    
+    .api-card .card-header {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .api-card .card-header .method {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      margin-right: 1rem;
+    }
+    
+    .api-card .card-body {
+      padding: 1.5rem;
+    }
+    
+    /* Tables */
+    .table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .table-responsive {
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    
+    .table thead th {
+      background-color: #f8f9fa;
+      border-top: none;
+      border-bottom: 1px solid #eaedf2;
+      font-weight: 600;
+      padding: 1rem;
+    }
+    
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-top: none;
+      border-bottom: 1px solid #eaedf2;
+    }
+    
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Code blocks */
+    pre {
+      border-radius: var(--border-radius);
+      margin-bottom: 1.5rem;
+    }
+    
+    code {
+      font-family: 'Fira Code', 'Courier New', monospace;
+    }
+    
+    .code-header {
+      background-color: #343a40;
+      color: #f8f9fa;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      border-top-left-radius: var(--border-radius);
+      border-top-right-radius: var(--border-radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .code-header .code-lang {
+      opacity: 0.7;
+    }
+    
+    .code-header .btn-copy {
+      background: none;
+      border: none;
+      color: #f8f9fa;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+    
+    .code-header .btn-copy:hover {
+      opacity: 1;
+    }
+    
+    .code-header .btn-copy i {
+      margin-right: 0.25rem;
+    }
+    
+    /* Response examples */
+    .response-example {
+      margin-top: 1rem;
+    }
+    
+    /* Footer */
+    .docs-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+      padding: 1.5rem 0;
+      box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Parameters */
+    .param-name {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    .param-type {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      background-color: #e9ecef;
+      color: #495057;
+      margin-left: 0.5rem;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .param-required {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      background-color: #dc3545;
+      color: white;
+      margin-left: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .param-optional {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      background-color: #6c757d;
+      color: white;
+      margin-left: 0.5rem;
+      font-weight: 500;
+    }
+    
+    /* Endpoints */
+    .endpoint {
+      font-family: 'Courier New', monospace;
+      padding: 0.75rem 1rem;
+      background-color: #f8f9fa;
+      border-radius: var(--border-radius);
+      border-left: 4px solid var(--primary-color);
+      margin-bottom: 1.5rem;
+      word-break: break-all;
+    }
+    
+    /* Back to top button */
+    #back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: none;
+      background-color: var(--primary-color);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 40px;
+      z-index: 99;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+    
+    #back-to-top:hover {
+      background-color: var(--primary-light);
+      transform: translateY(-3px);
+    }
+    
+    /* Media queries */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: relative;
+        height: auto;
+        margin-bottom: 2rem;
+      }
+      
+      .docs-header {
+        padding: 2rem 0;
+      }
+      
+      .docs-content {
+        margin-top: 2rem;
+      }
+    }
+  </style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#docs-nav" data-bs-offset="100">
+  <!-- 回到顶部按钮 -->
+  <a href="#" id="back-to-top" class="d-none">
+    <i class="bi bi-arrow-up"></i>
+  </a>
+
+  <!-- 文档头部 -->
+  <header class="docs-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+          <h1 class="docs-title">OpenAI翻译API</h1>
+          <p class="docs-subtitle">强大、灵活的AI驱动翻译服务</p>
+          <div class="mt-4">
+            <a href="/admin" class="btn btn-light me-2">管理控制台</a>
+            <a href="https://github.com/yourusername/openai-translation-api" class="btn btn-outline-light" target="_blank">
+              <i class="bi bi-github me-2"></i>GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="row">
+      <!-- 侧边导航 -->
+      <div class="col-md-3">
+        <nav id="docs-nav" class="sidebar">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link active" href="#introduction">介绍</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#authentication">认证</a>
+            </li>
+            
+            <div class="sidebar-heading">API端点</div>
+            <li class="nav-item">
+              <a class="nav-link" href="#text-translation">文本翻译</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#table-translation">表格翻译</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#file-translation">文件翻译</a>
+            </li>
+            
+            <div class="sidebar-heading">指南</div>
+            <li class="nav-item">
+              <a class="nav-link" href="#error-handling">错误处理</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#rate-limits">使用限制</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#best-practices">最佳实践</a>
+            </li>
+            
+            <div class="sidebar-heading">示例</div>
+            <li class="nav-item">
+              <a class="nav-link" href="#examples-curl">Curl示例</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#examples-node">Node.js示例</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#examples-python">Python示例</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      
+      <!-- 主要内容 -->
+      <div class="col-md-9">
+        <main class="docs-content">
+          <!-- 介绍部分 -->
+          <section id="introduction" class="docs-section">
+            <h2>介绍</h2>
+            <p>OpenAI翻译API是一个基于OpenAI强大的语言模型构建的翻译服务，支持文本、表格、文档和音频文件的多语言翻译。</p>
+            
+            <div class="row mt-4">
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>主要特性</h5>
+                    <ul class="list-unstyled mt-3">
+                      <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>支持多种内容格式的翻译</li>
+                      <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>高质量的AI翻译结果</li>
+                      <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>保持表格和文档结构</li>
+                      <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>音频文件转录和翻译</li>
+                      <li><i class="bi bi-check-circle-fill text-success me-2"></i>API密钥认证保障安全</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-tools text-primary me-2"></i>基础用法</h5>
+                    <div class="mt-3">
+                      <p>所有API请求都需要通过HTTPS进行，并且必须包含有效的API密钥。基本URL格式如下：</p>
+                      <div class="endpoint">
+                        <i class="bi bi-link-45deg me-2"></i>https://your-server.com/api/translate
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- 认证部分 -->
+          <section id="authentication" class="docs-section">
+            <h2>认证</h2>
+            <p>所有API请求都需要使用API密钥进行认证。请在请求头中包含您的API密钥：</p>
+            
+            <div class="card api-card">
+              <div class="card-body">
+                <h5 class="mb-3">API密钥认证</h5>
+                <p>在每个请求的HTTP头中添加<code>X-API-Key</code>：</p>
+                <div class="code-header">
+                  <span class="code-lang">HTTP Header</span>
+                  <button class="btn-copy" data-clipboard-target="#auth-code">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-http" id="auth-code">X-API-Key: your-api-key</code></pre>
+                
+                <div class="alert alert-warning mt-3">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <strong>安全提示：</strong> 请保护好您的API密钥，不要在公共代码中暴露它。
+                </div>
+              </div>
+            </div>
+            
+            <h3>获取API密钥</h3>
+            <p>您可以通过管理控制台创建和管理API密钥：</p>
+            <ol>
+              <li>登录到<a href="/admin">管理控制台</a></li>
+              <li>导航到"API密钥管理"部分</li>
+              <li>点击"创建新密钥"按钮</li>
+              <li>输入密钥名称和可选的过期时间</li>
+              <li>复制并安全存储生成的API密钥</li>
+            </ol>
+          </section>
+          
+          <!-- 文本翻译 -->
+          <section id="text-translation" class="docs-section">
+            <h2>文本翻译</h2>
+            <p>文本翻译API允许您翻译纯文本内容，支持多种语言对。</p>
+            
+            <div class="card api-card">
+              <div class="card-header">
+                <span class="method">POST</span>
+                <span>/api/translate/text</span>
+              </div>
+              <div class="card-body">
+                <h5 class="mb-3">请求参数</h5>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必填</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">text</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-required">必填</span></td>
+                        <td>需要翻译的文本内容</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">sourceLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>源语言（默认为"中文"）</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">targetLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>目标语言（默认为"英文"）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">请求示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#text-request-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="text-request-example">{
+  "text": "人工智能正在改变我们的生活方式。",
+  "sourceLanguage": "中文",
+  "targetLanguage": "英文"
+}</code></pre>
+                
+                <h5 class="mb-3 mt-4">响应参数</h5>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">success</span>
+                        </td>
+                        <td><span class="param-type">boolean</span></td>
+                        <td>请求是否成功</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data</span>
+                        </td>
+                        <td><span class="param-type">object</span></td>
+                        <td>包含翻译结果的数据对象</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data.translatedText</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td>翻译后的文本</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data.usage</span>
+                        </td>
+                        <td><span class="param-type">object</span></td>
+                        <td>API使用统计信息（token数量等）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">响应示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#text-response-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="text-response-example">{
+  "success": true,
+  "data": {
+    "translatedText": "Artificial intelligence is changing our way of life.",
+    "usage": {
+      "prompt_tokens": 23,
+      "completion_tokens": 9,
+      "total_tokens": 32
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+          </section>
+          
+          <!-- 表格翻译 -->
+          <section id="table-translation" class="docs-section">
+            <h2>表格翻译</h2>
+            <p>表格翻译API支持翻译JSON格式的表格数据，同时保持原始结构不变。支持多种表格格式。</p>
+            
+            <div class="card api-card">
+              <div class="card-header">
+                <span class="method">POST</span>
+                <span>/api/translate/table</span>
+              </div>
+              <div class="card-body">
+                <h5 class="mb-3">请求参数</h5>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必填</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">table</span>
+                        </td>
+                        <td><span class="param-type">object/array</span></td>
+                        <td><span class="param-required">必填</span></td>
+                        <td>需要翻译的表格数据，支持以下格式：<br>
+                          - 对象数组: <code>[{},{},...]</code><br>
+                          - 二维数组: <code>[[],[],...]</code><br>
+                          - 嵌套对象: <code>{key:{...},...}</code>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">sourceLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>源语言（默认为"中文"）</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">targetLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>目标语言（默认为"英文"）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">请求示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#table-request-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="table-request-example">{
+  "table": [
+    {"姓名": "张三", "职位": "软件工程师", "部门": "研发部"},
+    {"姓名": "李四", "职位": "产品经理", "部门": "产品部"}
+  ],
+  "sourceLanguage": "中文",
+  "targetLanguage": "英文"
+}</code></pre>
+                
+                <h5 class="mb-3 mt-4">响应参数</h5>
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">success</span>
+                        </td>
+                        <td><span class="param-type">boolean</span></td>
+                        <td>请求是否成功</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data</span>
+                        </td>
+                        <td><span class="param-type">object</span></td>
+                        <td>包含翻译结果的数据对象</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data.translatedTable</span>
+                        </td>
+                        <td><span class="param-type">object/array</span></td>
+                        <td>翻译后的表格数据，保持原结构</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data.usage</span>
+                        </td>
+                        <td><span class="param-type">object</span></td>
+                        <td>API使用统计信息（token数量等）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">响应示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#table-response-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="table-response-example">{
+  "success": true,
+  "data": {
+    "translatedTable": [
+      {"name": "Zhang San", "position": "Software Engineer", "department": "R&D Department"},
+      {"name": "Li Si", "position": "Product Manager", "department": "Product Department"}
+    ],
+    "usage": {
+      "prompt_tokens": 82,
+      "completion_tokens": 48,
+      "total_tokens": 130
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+          </section>
+          
+          <!-- 文件翻译 -->
+          <section id="file-translation" class="docs-section">
+            <h2>文件翻译</h2>
+            <p>文件翻译API支持各种类型文件的翻译，包括文本文件、表格文件和音频文件。</p>
+            
+            <div class="card api-card">
+              <div class="card-header">
+                <span class="method">POST</span>
+                <span>/api/translate/file</span>
+              </div>
+              <div class="card-body">
+                <h5 class="mb-3">请求参数</h5>
+                <p class="text-muted mb-3">此接口使用 <code>multipart/form-data</code> 格式</p>
+                
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>必填</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">file</span>
+                        </td>
+                        <td><span class="param-type">file</span></td>
+                        <td><span class="param-required">必填</span></td>
+                        <td>要翻译的文件，支持以下格式：<br>
+                          - 文本文件: <code>.txt</code><br>
+                          - 表格文件: <code>.csv</code>, <code>.json</code>, <code>.xls</code>, <code>.xlsx</code><br>
+                          - 文档文件: <code>.doc</code>, <code>.docx</code><br>
+                          - 音频文件: <code>.mp3</code>, <code>.wav</code>, <code>.mp4</code><br>
+                          <span class="text-muted">最大文件大小：10MB</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">sourceLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>源语言（默认为"中文"）</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">targetLanguage</span>
+                        </td>
+                        <td><span class="param-type">string</span></td>
+                        <td><span class="param-optional">可选</span></td>
+                        <td>目标语言（默认为"英文"）</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">响应参数</h5>
+                <p class="text-muted mb-3">根据上传文件类型的不同，响应格式会有所不同</p>
+                
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>参数名</th>
+                        <th>类型</th>
+                        <th>说明</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span class="param-name">success</span>
+                        </td>
+                        <td><span class="param-type">boolean</span></td>
+                        <td>请求是否成功</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <span class="param-name">data</span>
+                        </td>
+                        <td><span class="param-type">object</span></td>
+                        <td>包含翻译结果的数据对象</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <h5 class="mb-3 mt-4">文本文件响应示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#file-text-response-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="file-text-response-example">{
+  "success": true,
+  "data": {
+    "translatedText": "This is the translated content of the document.",
+    "usage": {
+      "prompt_tokens": 45,
+      "completion_tokens": 10,
+      "total_tokens": 55
+    }
+  }
+}</code></pre>
+                
+                <h5 class="mb-3 mt-3">表格文件响应示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#file-table-response-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="file-table-response-example">{
+  "success": true,
+  "data": {
+    "translatedTable": [...], // 翻译后的表格数据
+    "usage": {
+      "prompt_tokens": 120,
+      "completion_tokens": 80,
+      "total_tokens": 200
+    }
+  }
+}</code></pre>
+                
+                <h5 class="mb-3 mt-3">音频文件响应示例</h5>
+                <div class="code-header">
+                  <span class="code-lang">JSON</span>
+                  <button class="btn-copy" data-clipboard-target="#file-audio-response-example">
+                    <i class="bi bi-clipboard"></i> 复制
+                  </button>
+                </div>
+                <pre><code class="language-json" id="file-audio-response-example">{
+  "success": true,
+  "data": {
+    "originalText": "这是原始的音频转录内容",
+    "translatedText": "This is the original transcribed audio content",
+    "usage": {
+      "transcription": {
+        "seconds": 5
+      },
+      "translation": {
+        "prompt_tokens": 30,
+        "completion_tokens": 12,
+        "total_tokens": 42
+      }
+    }
+  }
+}</code></pre>
+              </div>
+            </div>
+          </section>
+          
+          <!-- 错误处理 -->
+          <section id="error-handling" class="docs-section">
+            <h2>错误处理</h2>
+            <p>当API请求失败时，服务将返回相应的HTTP状态码和错误信息。以下是可能的错误响应：</p>
+            
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>HTTP状态码</th>
+                    <th>错误类型</th>
+                    <th>说明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>400</td>
+                    <td>请求错误</td>
+                    <td>请求参数不正确或缺失必需参数</td>
+                  </tr>
+                  <tr>
+                    <td>401</td>
+                    <td>认证错误</td>
+                    <td>API密钥缺失、无效或已过期</td>
+                  </tr>
+                  <tr>
+                    <td>413</td>
+                    <td>内容过大</td>
+                    <td>上传的文件超过大小限制</td>
+                  </tr>
+                  <tr>
+                    <td>415</td>
+                    <td>不支持的媒体类型</td>
+                    <td>上传的文件类型不受支持</td>
+                  </tr>
+                  <tr>
+                    <td>429</td>
+                    <td>请求过多</td>
+                    <td>超出API调用频率限制</td>
+                  </tr>
+                  <tr>
+                    <td>500</td>
+                    <td>服务器错误</td>
+                    <td>服务器内部错误或OpenAI API调用失败</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <h3>错误响应示例</h3>
+            <div class="code-header">
+              <span class="code-lang">JSON</span>
+              <button class="btn-copy" data-clipboard-target="#error-response-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-json" id="error-response-example">{
+  "success": false,
+  "message": "API密钥无效或已过期",
+  "error": "InvalidApiKey"
+}</code></pre>
+          </section>
+          
+          <!-- 使用限制 -->
+          <section id="rate-limits" class="docs-section">
+            <h2>使用限制</h2>
+            <p>为了确保服务质量和防止滥用，API采用以下使用限制：</p>
+            
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>限制类型</th>
+                    <th>默认值</th>
+                    <th>说明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>请求频率</td>
+                    <td>60次/分钟</td>
+                    <td>每分钟最多可发送60个API请求</td>
+                  </tr>
+                  <tr>
+                    <td>文件大小</td>
+                    <td>10MB</td>
+                    <td>单个上传文件的最大大小</td>
+                  </tr>
+                  <tr>
+                    <td>文本长度</td>
+                    <td>8000个token</td>
+                    <td>单次文本翻译的最大长度</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+              <i class="bi bi-info-circle-fill me-2"></i>
+              <strong>注意：</strong> 如需更高的使用限制，请联系管理员。
+            </div>
+          </section>
+          
+          <!-- 最佳实践 -->
+          <section id="best-practices" class="docs-section">
+            <h2>最佳实践</h2>
+            <p>以下是使用OpenAI翻译API的最佳实践和建议：</p>
+            
+            <div class="row mt-4">
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-lightning-charge text-warning me-2"></i>优化请求效率</h5>
+                    <ul class="mt-3">
+                      <li class="mb-2">对于大型文件或内容，考虑分批处理</li>
+                      <li class="mb-2">对于表格，优先传递结构化数据而非原始CSV文本</li>
+                      <li class="mb-2">针对特定内容选择合适的API端点</li>
+                      <li>实现请求重试机制，应对临时错误</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-shield-check text-success me-2"></i>安全性建议</h5>
+                    <ul class="mt-3">
+                      <li class="mb-2">定期轮换API密钥</li>
+                      <li class="mb-2">为不同用途或项目创建单独的API密钥</li>
+                      <li class="mb-2">设置API密钥的过期时间</li>
+                      <li>避免在客户端代码中暴露API密钥</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-translate text-primary me-2"></i>翻译质量优化</h5>
+                    <ul class="mt-3">
+                      <li class="mb-2">提供准确的源语言和目标语言参数</li>
+                      <li class="mb-2">对于专业领域内容，考虑使用高级模型（如gpt-4）</li>
+                      <li class="mb-2">对于复杂内容，尝试添加上下文提示</li>
+                      <li>对很长的文档，考虑按段落或章节翻译</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-cpu text-danger me-2"></i>资源管理</h5>
+                    <ul class="mt-3">
+                      <li class="mb-2">监控API使用情况和token消耗</li>
+                      <li class="mb-2">对于重复性内容，考虑实现缓存策略</li>
+                      <li class="mb-2">根据内容复杂度选择适当的OpenAI模型</li>
+                      <li>处理大量请求时实现请求队列</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          
+          <!-- Curl示例 -->
+          <section id="examples-curl" class="docs-section">
+            <h2>Curl示例</h2>
+            <p>以下是使用curl命令调用API的示例：</p>
+            
+            <h3>文本翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">bash</span>
+              <button class="btn-copy" data-clipboard-target="#curl-text-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-bash" id="curl-text-example">curl -X POST \
+  http://your-server.com/api/translate/text \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your-api-key-here' \
+  -d '{
+    "text": "你好，世界！",
+    "sourceLanguage": "中文",
+    "targetLanguage": "英文"
+  }'</code></pre>
+            
+            <h3>表格翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">bash</span>
+              <button class="btn-copy" data-clipboard-target="#curl-table-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-bash" id="curl-table-example">curl -X POST \
+  http://your-server.com/api/translate/table \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your-api-key-here' \
+  -d '{
+    "table": [
+      {"姓名": "张三", "职位": "软件工程师"},
+      {"姓名": "李四", "职位": "产品经理"}
+    ],
+    "sourceLanguage": "中文",
+    "targetLanguage": "英文"
+  }'</code></pre>
+            
+            <h3>文件翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">bash</span>
+              <button class="btn-copy" data-clipboard-target="#curl-file-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-bash" id="curl-file-example">curl -X POST \
+  http://your-server.com/api/translate/file \
+  -H 'X-API-Key: your-api-key-here' \
+  -F 'file=@/path/to/your/document.txt' \
+  -F 'sourceLanguage=中文' \
+  -F 'targetLanguage=英文'</code></pre>
+          </section>
+          
+          <!-- Node.js示例 -->
+          <section id="examples-node" class="docs-section">
+            <h2>Node.js示例</h2>
+            <p>以下是使用Node.js调用API的示例：</p>
+            
+            <h3>文本翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">javascript</span>
+              <button class="btn-copy" data-clipboard-target="#node-text-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-javascript" id="node-text-example">const axios = require('axios');
+
+async function translateText() {
+  try {
+    const response = await axios.post(
+      'http://your-server.com/api/translate/text',
+      {
+        text: '人工智能正在改变我们的生活方式。',
+        sourceLanguage: '中文',
+        targetLanguage: '英文'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'your-api-key-here'
+        }
+      }
+    );
+    
+    console.log(response.data);
+  } catch (error) {
+    console.error('翻译失败:', error.response?.data || error.message);
+  }
+}
+
+translateText();</code></pre>
+            
+            <h3>表格翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">javascript</span>
+              <button class="btn-copy" data-clipboard-target="#node-table-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-javascript" id="node-table-example">const axios = require('axios');
+
+async function translateTable() {
+  try {
+    const response = await axios.post(
+      'http://your-server.com/api/translate/table',
+      {
+        table: [
+          { "姓名": "张三", "职位": "软件工程师", "部门": "研发部" },
+          { "姓名": "李四", "职位": "产品经理", "部门": "产品部" }
+        ],
+        sourceLanguage: '中文',
+        targetLanguage: '英文'
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'your-api-key-here'
+        }
+      }
+    );
+    
+    console.log(response.data);
+  } catch (error) {
+    console.error('翻译失败:', error.response?.data || error.message);
+  }
+}
+
+translateTable();</code></pre>
+            
+            <h3>文件翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">javascript</span>
+              <button class="btn-copy" data-clipboard-target="#node-file-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-javascript" id="node-file-example">const axios = require('axios');
+const fs = require('fs');
+const FormData = require('form-data');
+const path = require('path');
+
+async function translateFile() {
+  try {
+    const filePath = '/path/to/your/document.txt';
+    const form = new FormData();
+    
+    form.append('file', fs.createReadStream(filePath));
+    form.append('sourceLanguage', '中文');
+    form.append('targetLanguage', '英文');
+    
+    const response = await axios.post(
+      'http://your-server.com/api/translate/file',
+      form,
+      {
+        headers: {
+          ...form.getHeaders(),
+          'X-API-Key': 'your-api-key-here'
+        }
+      }
+    );
+    
+    console.log(response.data);
+  } catch (error) {
+    console.error('翻译失败:', error.response?.data || error.message);
+  }
+}
+
+translateFile();</code></pre>
+          </section>
+          
+          <!-- Python示例 -->
+          <section id="examples-python" class="docs-section">
+            <h2>Python示例</h2>
+            <p>以下是使用Python调用API的示例：</p>
+            
+            <h3>文本翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <button class="btn-copy" data-clipboard-target="#python-text-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-python" id="python-text-example">import requests
+import json
+
+def translate_text():
+    url = "http://your-server.com/api/translate/text"
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": "your-api-key-here"
+    }
+    data = {
+        "text": "人工智能正在改变我们的生活方式。",
+        "sourceLanguage": "中文",
+        "targetLanguage": "英文"
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response.raise_for_status()  # 检查HTTP错误
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"翻译请求失败: {e}")
+        return None
+
+result = translate_text()
+print(result)</code></pre>
+            
+            <h3>表格翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <button class="btn-copy" data-clipboard-target="#python-table-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-python" id="python-table-example">import requests
+import json
+
+def translate_table():
+    url = "http://your-server.com/api/translate/table"
+    headers = {
+        "Content-Type": "application/json",
+        "X-API-Key": "your-api-key-here"
+    }
+    data = {
+        "table": [
+            {"姓名": "张三", "职位": "软件工程师", "部门": "研发部"},
+            {"姓名": "李四", "职位": "产品经理", "部门": "产品部"}
+        ],
+        "sourceLanguage": "中文",
+        "targetLanguage": "英文"
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"翻译请求失败: {e}")
+        return None
+
+result = translate_table()
+print(result)</code></pre>
+            
+            <h3>文件翻译</h3>
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <button class="btn-copy" data-clipboard-target="#python-file-example">
+                <i class="bi bi-clipboard"></i> 复制
+              </button>
+            </div>
+            <pre><code class="language-python" id="python-file-example">import requests
+
+def translate_file():
+    url = "http://your-server.com/api/translate/file"
+    headers = {
+        "X-API-Key": "your-api-key-here"
+    }
+    
+    files = {
+        "file": open("path/to/your/document.txt", "rb")
+    }
+    
+    data = {
+        "sourceLanguage": "中文",
+        "targetLanguage": "英文"
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, files=files, data=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"翻译请求失败: {e}")
+        return None
+    finally:
+        files["file"].close()  # 确保关闭文件
+
+result = translate_file()
+print(result)</code></pre>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 页脚 -->
+  <footer class="docs-footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2025 OpenAI翻译API. 保留所有权利。</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <a href="https://github.com/yourusername/openai-translation-api" class="text-decoration-none text-muted" target="_blank">
+            <i class="bi bi-github me-2"></i>GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化代码复制功能
+      new ClipboardJS('.btn-copy').on('success', function(e) {
+        const button = e.trigger;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check-lg"></i> 已复制';
+        
+        setTimeout(function() {
+          button.innerHTML = originalText;
+        }, 2000);
+        
+        e.clearSelection();
+      });
+      
+      // 滚动检测并显示回到顶部按钮
+      const backToTopBtn = document.getElementById('back-to-top');
+      
+      window.onscroll = function() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+          backToTopBtn.classList.remove('d-none');
+        } else {
+          backToTopBtn.classList.add('d-none');
+        }
+      };
+      
+      // 回到顶部功能
+      backToTopBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.body.scrollTop = 0; // Safari
+        document.documentElement.scrollTop = 0; // Chrome, Firefox, IE and Opera
+      });
+      
+      // 实现导航栏滚动高亮
+      const navLinks = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('.docs-section');
+      
+      window.addEventListener('scroll', function() {
+        let current = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          
+          if (scrollY >= (sectionTop - 100)) {
+            current = section.getAttribute('id');
+          }
+        });
+        
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

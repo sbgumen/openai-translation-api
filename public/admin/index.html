@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>管理控制台 - OpenAI翻译API</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-color: #3d348b;
+      --primary-light: #7678ed;
+      --secondary-color: #3c6e71;
+      --accent-color: #5285c5;
+      --success-color: #4cc9f0;
+      --warning-color: #f72585;
+      --light-bg: #f7f7f9;
+      --dark-bg: #212529;
+      --border-radius: 10px;
+      --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+      color: #333;
+      transition: var(--transition);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 60px; /* Space for mobile nav */
+    }
+    
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      padding: 60px 0 0;
+      box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+      background-color: white;
+      transition: var(--transition);
+    }
+    
+    .sidebar-sticky {
+      position: relative;
+      top: 0;
+      height: calc(100vh - 60px);
+      padding-top: 0.5rem;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    
+    .sidebar .nav-link {
+      color: #555;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0;
+      transition: var(--transition);
+      position: relative;
+      margin: 4px 10px;
+      border-radius: var(--border-radius);
+    }
+    
+    .sidebar .nav-link:hover {
+      color: var(--primary-color);
+      background-color: rgba(61, 52, 139, 0.1);
+    }
+    
+    .sidebar .nav-link.active {
+      color: white;
+      background-color: var(--primary-color);
+      box-shadow: var(--box-shadow);
+    }
+    
+    .sidebar .nav-link i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+    }
+    
+    /* Navbar styles */
+    .navbar {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+      box-shadow: var(--box-shadow);
+      padding: 1rem;
+      height: 60px;
+    }
+    
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: white !important;
+    }
+    
+    /* Content area */
+    .content {
+      margin-top: 60px;
+      transition: var(--transition);
+      min-height: calc(100vh - 60px);
+    }
+    
+    .tab-content {
+      display: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .tab-content.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Cards */
+    .card {
+      border: none;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-5px);
+    }
+    
+    .card-header {
+      background: white;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      font-weight: 600;
+      padding: 1rem 1.5rem;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    /* Tables */
+    .table {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .table-responsive {
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--box-shadow);
+      margin-bottom: 2rem;
+    }
+    
+    .table thead th {
+      background-color: #f8f9fa;
+      border-top: none;
+      border-bottom: 1px solid #eaedf2;
+      color: #6c757d;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      padding: 1rem;
+    }
+    
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-top: none;
+      border-bottom: 1px solid #eaedf2;
+    }
+    
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Buttons */
+    .btn {
+      border-radius: var(--border-radius);
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+    
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+    }
+    
+    .btn-danger {
+      background-color: var(--warning-color);
+      border-color: var(--warning-color);
+    }
+    
+    /* Forms */
+    .form-control {
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      border: 1px solid #e0e0e0;
+      transition: var(--transition);
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(61, 52, 139, 0.25);
+    }
+    
+    .form-select {
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      border: 1px solid #e0e0e0;
+      height: auto;
+    }
+    
+    /* Badges */
+    .badge {
+      padding: 0.5rem 0.75rem;
+      font-weight: 500;
+      border-radius: 30px;
+    }
+    
+    /* API Key */
+    .api-key {
+      font-family: 'Courier New', monospace;
+      background-color: #f8f9fa;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    
+    /* Loader */
+    .loader-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+    
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #eaedf2;
+      border-bottom-color: var(--primary-color);
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+    }
+    
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    
+    /* Modal */
+    .modal-content {
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      border: none;
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+    }
+    
+    .modal-body {
+      padding: 1.5rem;
+    }
+    
+    .modal-footer {
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+    }
+    
+    /* Authentication check overlay */
+    #auth-check-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    
+    /* Mobile bottom navigation */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+    
+    .mobile-nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 0.75rem 0;
+      color: #6c757d;
+      transition: var(--transition);
+    }
+    
+    .mobile-nav-item.active {
+      color: var(--primary-color);
+    }
+    
+    .mobile-nav-item i {
+      font-size: 1.25rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    
+    .mobile-nav-item span {
+      font-size: 0.75rem;
+      display: block;
+    }
+    
+    /* Modal styles for mobile */
+    .mobile-modal {
+      background-color: white;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      border-radius: 20px 20px 0 0;
+      z-index: 1050;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.2);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .mobile-modal.show {
+      transform: translateY(0);
+    }
+    
+    .mobile-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #eaedf2;
+    }
+    
+    .mobile-modal-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin: 0;
+    }
+    
+    .mobile-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: #6c757d;
+    }
+    
+    .mobile-modal-body {
+      padding: 1.5rem;
+    }
+    
+    .mobile-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1040;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    
+    .mobile-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+      .content {
+        margin-left: 0 !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+      
+      .sidebar {
+        display: none !important;
+      }
+      
+      .navbar-brand {
+        font-size: 1rem;
+      }
+      .navbar-toggler{
+          display: none;
+      }
+      
+      .mobile-nav {
+        display: flex;
+      }
+      
+      .card-title {
+        font-size: 1.2rem;
+      }
+      
+      .table-responsive {
+        box-shadow: none;
+      }
+      
+      .modal-dialog {
+        margin: 0.5rem;
+      }
+      
+      .card:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Check Overlay -->
+  <div id="auth-check-overlay">
+    <div class="loader"></div>
+    <p class="mt-3">验证登录状态...</p>
+  </div>
+  
+  <header class="navbar navbar-dark sticky-top flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">
+      <i class="bi bi-translate"></i> OpenAI翻译API管理系统
+    </a>
+    <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="w-100"></div>
+    <div class="navbar-nav d-none d-md-block">
+      <div class="nav-item text-nowrap">
+        <a class="nav-link px-3" href="#" id="logout-btn">
+          <i class="bi bi-box-arrow-right"></i> 登出
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky sidebar-sticky">
+          <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-tab="dashboard">
+                <i class="bi bi-speedometer2"></i> 控制台
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#" data-tab="api-keys">
+                <i class="bi bi-key"></i> API密钥管理
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-tab="settings">
+                <i class="bi bi-gear"></i> 模型设置
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-tab="change-password">
+                <i class="bi bi-shield-lock"></i> 修改密码
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
+        <!-- 控制台页面 -->
+        <div class="tab-content" id="dashboard">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="bi bi-speedometer2"></i> 控制台</h1>
+          </div>
+          
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">API使用说明</h5>
+                </div>
+                <div class="card-body">
+                  <h6 class="fw-bold mb-3">翻译接口列表</h6>
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>接口名称</th>
+                          <th>接口路径</th>
+                          <th>说明</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>文本翻译</td>
+                          <td><code>/api/translate/text</code></td>
+                          <td>翻译纯文本内容</td>
+                        </tr>
+                        <tr>
+                          <td>表格翻译</td>
+                          <td><code>/api/translate/table</code></td>
+                          <td>翻译JSON格式的表格数据</td>
+                        </tr>
+                        <tr>
+                          <td>文件翻译</td>
+                          <td><code>/api/translate/file</code></td>
+                          <td>翻译文档或音频文件</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <h6 class="fw-bold mb-3 mt-4">API密钥验证</h6>
+                  <div class="bg-light p-3 rounded mb-3">
+                    <code>X-API-Key: your-api-key</code>
+                  </div>
+                  <p class="text-muted small">所有请求都需要在请求头中包含API密钥</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-4">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">系统状态</h5>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="bi bi-robot text-primary me-2"></i> AI模型
+                    </div>
+                    <span class="badge bg-primary" id="openai-model">加载中...</span>
+                  </div>
+                  
+                  <div class="mb-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="bi bi-key text-success me-2"></i> API密钥数量
+                    </div>
+                    <span class="badge bg-success" id="api-key-count">加载中...</span>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <i class="bi bi-hdd-stack text-info me-2"></i> 服务器状态
+                    </div>
+                    <span class="badge bg-info">运行中</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">快速操作</h5>
+                </div>
+                <div class="card-body">
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="quick-create-key-btn">
+                      <i class="bi bi-key"></i> 创建新API密钥
+                    </button>
+                    <button class="btn btn-outline-primary" id="quick-settings-btn">
+                      <i class="bi bi-gear"></i> 模型设置
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- API密钥管理 -->
+        <div class="tab-content active" id="api-keys">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="bi bi-key"></i> API密钥管理</h1>
+            <button class="btn btn-primary" id="new-key-btn">
+              <i class="bi bi-plus-circle"></i> 创建新密钥
+            </button>
+          </div>
+          
+          <div class="card mb-4">
+            <div class="card-body" id="api-keys-container">
+              <div class="loader-container">
+                <span class="loader"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 模型设置 -->
+        <div class="tab-content" id="settings">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="bi bi-gear"></i> 模型设置</h1>
+          </div>
+          
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">OpenAI模型配置</h5>
+                </div>
+                <div class="card-body">
+                  <form id="settings-form">
+                    <div class="mb-4">
+                      <label for="openai-model-select" class="form-label">选择OpenAI模型</label>
+                      <select class="form-select" id="openai-model-select">
+                        <option value="gpt-3.5-turbo">gpt-3.5-turbo (平衡速度与性能)</option>
+                        <option value="gpt-3.5-turbo-16k">gpt-3.5-turbo-16k (支持更长文本)</option>
+                        <option value="gpt-4">gpt-4 (更高翻译质量)</option>
+                        <option value="gpt-4-turbo">gpt-4-turbo (最新性能)</option>
+                      </select>
+                      <div class="form-text text-muted mt-2">
+                        选择不同的模型会影响翻译质量、速度和成本
+                      </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                      <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> API密钥、基础URL和端口等其他配置项请在服务器的.env文件中设置
+                      </div>
+                    </div>
+                    
+                    <div class="alert alert-success d-none" id="settings-success">
+                      <i class="bi bi-check-circle"></i> 模型设置已保存！
+                    </div>
+                    
+                    <div class="d-grid">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> 保存设置
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">模型对比</h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>模型</th>
+                          <th>特点</th>
+                          <th>推荐用途</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>gpt-3.5-turbo</td>
+                          <td>速度快，成本低</td>
+                          <td>一般翻译场景</td>
+                        </tr>
+                        <tr>
+                          <td>gpt-3.5-turbo-16k</td>
+                          <td>支持更长文本</td>
+                          <td>长文档翻译</td>
+                        </tr>
+                        <tr>
+                          <td>gpt-4</td>
+                          <td>翻译质量高</td>
+                          <td>专业内容翻译</td>
+                        </tr>
+                        <tr>
+                          <td>gpt-4-turbo</td>
+                          <td>最新性能</td>
+                          <td>高要求场景</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 修改密码 -->
+        <div class="tab-content" id="change-password">
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="bi bi-shield-lock"></i> 修改管理员密码</h1>
+          </div>
+          
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">更改密码</h5>
+                </div>
+                <div class="card-body">
+                  <form id="password-form">
+                    <div class="mb-3">
+                      <label for="current-password" class="form-label">当前密码</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-key"></i></span>
+                        <input type="password" class="form-control" id="current-password" required>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="new-password" class="form-label">新密码</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="new-password" required>
+                      </div>
+                    </div>
+                    <div class="mb-4">
+                      <label for="confirm-password" class="form-label">确认新密码</label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="confirm-password" required>
+                      </div>
+                    </div>
+                    
+                    <div class="alert alert-danger d-none" id="password-error"></div>
+                    <div class="alert alert-success d-none" id="password-success">
+                      <i class="bi bi-check-circle"></i> 密码已成功更新！
+                    </div>
+                    
+                    <div class="d-grid">
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-shield-check"></i> 更改密码
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-6">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">密码安全建议</h5>
+                </div>
+                <div class="card-body">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                      <i class="bi bi-check-circle-fill text-success me-3"></i>
+                      <div>
+                        <h6 class="mb-1">使用强密码</h6>
+                        <p class="text-muted small mb-0">包含大小写字母、数字和特殊字符</p>
+                      </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                      <i class="bi bi-check-circle-fill text-success me-3"></i>
+                      <div>
+                        <h6 class="mb-1">定期更换密码</h6>
+                        <p class="text-muted small mb-0">建议每90天更换一次密码</p>
+                      </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                      <i class="bi bi-check-circle-fill text-success me-3"></i>
+                      <div>
+                        <h6 class="mb-1">不要使用常见密码</h6>
+                        <p class="text-muted small mb-0">避免使用生日、姓名等容易猜测的信息</p>
+                      </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                      <i class="bi bi-check-circle-fill text-success me-3"></i>
+                      <div>
+                        <h6 class="mb-1">不共享管理员账号</h6>
+                        <p class="text-muted small mb-0">每个管理员应当拥有独立的账号</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  
+  <!-- 移动端底部导航 -->
+  <div class="mobile-nav">
+    <div class="mobile-nav-item" data-tab="dashboard">
+      <i class="bi bi-speedometer2"></i>
+      <span>控制台</span>
+    </div>
+    <div class="mobile-nav-item active" data-tab="api-keys">
+      <i class="bi bi-key"></i>
+      <span>API密钥</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="settings">
+      <i class="bi bi-gear"></i>
+      <span>设置</span>
+    </div>
+    <div class="mobile-nav-item" data-tab="change-password">
+      <i class="bi bi-shield-lock"></i>
+      <span>密码</span>
+    </div>
+    <div class="mobile-nav-item" id="mobile-logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>登出</span>
+    </div>
+  </div>
+  
+  <!-- 创建API密钥模态框 (桌面版) -->
+  <div class="modal fade" id="newKeyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-key"></i> 创建新API密钥</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="new-key-form">
+            <div class="mb-3">
+              <label for="key-name" class="form-label">密钥名称</label>
+              <input type="text" class="form-control" id="key-name" placeholder="输入API密钥名称" required>
+              <div class="form-text text-muted">给密钥一个易于识别的名称</div>
+            </div>
+            <div class="mb-3">
+              <label for="key-expires" class="form-label">过期时间 (可选)</label>
+              <input type="date" class="form-control" id="key-expires">
+              <div class="form-text text-muted">留空表示永不过期</div>
+            </div>
+          </form>
+          <div class="alert alert-success d-none" id="new-key-result">
+            <h6 class="alert-heading mb-3"><i class="bi bi-check-circle"></i> API密钥已创建</h6>
+            <div class="bg-light p-3 rounded mb-3">
+              <code id="new-key-value" class="user-select-all"></code>
+            </div>
+            <p class="text-danger small"><i class="bi bi-exclamation-triangle"></i> 请立即复制此密钥，关闭后将无法再次查看完整密钥！</p>
+            <div class="d-grid">
+              <button class="btn btn-sm btn-outline-primary" id="copy-key-btn">
+                <i class="bi bi-clipboard"></i> 复制到剪贴板
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" id="create-key-btn">创建</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 创建API密钥模态框 (移动版) -->
+  <div class="mobile-backdrop" id="mobileBackdrop"></div>
+  <div class="mobile-modal" id="mobileKeyModal">
+    <div class="mobile-modal-header">
+      <h5 class="mobile-modal-title"><i class="bi bi-key"></i> 创建新API密钥</h5>
+      <button type="button" class="mobile-modal-close" id="closeMobileModal">&times;</button>
+    </div>
+    <div class="mobile-modal-body">
+      <form id="mobile-new-key-form">
+        <div class="mb-3">
+          <label for="mobile-key-name" class="form-label">密钥名称</label>
+          <input type="text" class="form-control" id="mobile-key-name" placeholder="输入API密钥名称" required>
+          <div class="form-text text-muted">给密钥一个易于识别的名称</div>
+        </div>
+        <div class="mb-3">
+          <label for="mobile-key-expires" class="form-label">过期时间 (可选)</label>
+          <input type="date" class="form-control" id="mobile-key-expires">
+          <div class="form-text text-muted">留空表示永不过期</div>
+        </div>
+        
+        <div class="alert alert-success d-none" id="mobile-new-key-result">
+          <h6 class="alert-heading mb-3"><i class="bi bi-check-circle"></i> API密钥已创建</h6>
+          <div class="bg-light p-3 rounded mb-3">
+            <code id="mobile-new-key-value" class="user-select-all"></code>
+          </div>
+          <p class="text-danger small"><i class="bi bi-exclamation-triangle"></i> 请立即复制此密钥，关闭后将无法再次查看完整密钥！</p>
+          <div class="d-grid">
+            <button class="btn btn-sm btn-outline-primary" id="mobile-copy-key-btn">
+              <i class="bi bi-clipboard"></i> 复制到剪贴板
+            </button>
+          </div>
+        </div>
+        
+        <div class="d-grid gap-2 mt-4">
+          <button type="button" class="btn btn-primary" id="mobile-create-key-btn">创建</button>
+          <button type="button" class="btn btn-secondary" id="mobile-cancel-btn">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 创建Bootstrap Modal对象
+    let newKeyModal;
+    
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+      // 检查登录状态
+      checkAuthentication();
+      
+      // 初始化Modal
+      newKeyModal = new bootstrap.Modal(document.getElementById('newKeyModal'));
+      
+      // 切换标签页
+      document.querySelectorAll('.nav-link, .mobile-nav-item').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const tabId = this.getAttribute('data-tab');
+          if (!tabId) return; // 登出按钮没有tab属性
+          
+          // 移除所有活动状态
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+          document.querySelectorAll('.mobile-nav-item').forEach(l => l.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+          
+          // 设置当前标签页为活动状态
+          document.querySelectorAll(`.nav-link[data-tab="${tabId}"]`).forEach(l => l.classList.add('active'));
+          document.querySelectorAll(`.mobile-nav-item[data-tab="${tabId}"]`).forEach(l => l.classList.add('active'));
+          document.getElementById(tabId).classList.add('active');
+          
+          // 根据标签页加载数据
+          if (tabId === 'api-keys') {
+            loadApiKeys();
+          } else if (tabId === 'settings') {
+            loadSettings();
+          } else if (tabId === 'dashboard') {
+            loadDashboardData();
+          }
+        });
+      });
+      
+      // 快速操作按钮
+      document.getElementById('quick-create-key-btn').addEventListener('click', function() {
+        // 切换到API密钥标签页并显示创建模态框
+        document.querySelector('.nav-link[data-tab="api-keys"]').click();
+        showKeyModal();
+      });
+      
+      document.getElementById('quick-settings-btn').addEventListener('click', function() {
+        // 切换到设置标签页
+        document.querySelector('.nav-link[data-tab="settings"]').click();
+      });
+      
+      // 登出按钮
+      document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+      
+      // 移动端登出按钮
+      document.getElementById('mobile-logout').addEventListener('click', function(e) {
+        e.preventDefault();
+        logout();
+      });
+      
+      // 新建API密钥按钮 - 桌面版和移动版
+      document.getElementById('new-key-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        showKeyModal();
+      });
+      
+      // 创建API密钥 - 桌面版
+      document.getElementById('create-key-btn').addEventListener('click', function() {
+        createApiKey('desktop');
+      });
+      
+      // 创建API密钥 - 移动版
+      document.getElementById('mobile-create-key-btn').addEventListener('click', function() {
+        createApiKey('mobile');
+      });
+      
+      // 移动版模态框关闭
+      document.getElementById('closeMobileModal').addEventListener('click', hideMobileModal);
+      document.getElementById('mobile-cancel-btn').addEventListener('click', hideMobileModal);
+      document.getElementById('mobileBackdrop').addEventListener('click', hideMobileModal);
+      
+      // 复制API密钥到剪贴板 - 桌面版
+      document.getElementById('copy-key-btn').addEventListener('click', function() {
+        copyToClipboard(this, 'new-key-value');
+      });
+      
+      // 复制API密钥到剪贴板 - 移动版
+      document.getElementById('mobile-copy-key-btn').addEventListener('click', function() {
+        copyToClipboard(this, 'mobile-new-key-value');
+      });
+      
+      // 修改密码表单
+      document.getElementById('password-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        changePassword();
+      });
+      
+      // 设置表单
+      document.getElementById('settings-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveSettings();
+      });
+      
+      // 加载初始数据
+      loadDashboardData();
+    });
+    
+    // 显示创建密钥模态框
+    function showKeyModal() {
+      if (window.innerWidth <= 768) {
+        // 移动端
+        document.getElementById('mobile-new-key-form').reset();
+        document.getElementById('mobile-new-key-result').classList.add('d-none');
+        document.getElementById('mobileKeyModal').classList.add('show');
+        document.getElementById('mobileBackdrop').classList.add('show');
+        document.body.style.overflow = 'hidden';
+      } else {
+        // 桌面端
+        document.getElementById('new-key-form').reset();
+        document.getElementById('new-key-result').classList.add('d-none');
+        document.getElementById('create-key-btn').style.display = 'block';
+        newKeyModal.show();
+      }
+    }
+    
+    // 隐藏移动端模态框
+    function hideMobileModal() {
+      document.getElementById('mobileKeyModal').classList.remove('show');
+      document.getElementById('mobileBackdrop').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    
+    // 复制到剪贴板
+    function copyToClipboard(button, elementId) {
+      const keyValue = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(keyValue).then(() => {
+        button.innerHTML = '<i class="bi bi-check-lg"></i> 已复制';
+        button.classList.replace('btn-outline-primary', 'btn-success');
+        
+        setTimeout(() => {
+          button.innerHTML = '<i class="bi bi-clipboard"></i> 复制到剪贴板';
+          button.classList.replace('btn-success', 'btn-outline-primary');
+        }, 2000);
+      });
+    }
+    
+    // 检查用户登录状态
+    async function checkAuthentication() {
+      try {
+        // 尝试获取设置信息来验证登录状态
+        const response = await fetch('/admin/api/settings');
+        
+        if (response.status === 401 || response.status === 302) {
+          // 未登录或者会话已过期
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        // 隐藏登录验证覆盖层
+        document.getElementById('auth-check-overlay').style.display = 'none';
+      } catch (error) {
+        console.error('验证登录状态时出错:', error);
+        // 出错时重定向到登录页面
+        window.location.href = '/admin/login';
+      }
+    }
+    
+    // 加载控制台数据
+    async function loadDashboardData() {
+      try {
+        // 加载设置
+        const settingsResponse = await fetch('/admin/api/settings');
+        if (settingsResponse.ok) {
+          const settings = await settingsResponse.json();
+          if (settings.success) {
+            document.getElementById('openai-model').textContent = settings.data.openaiModel || 'gpt-3.5-turbo';
+          }
+        } else if (settingsResponse.status === 401) {
+          // 如果未授权，重定向到登录页面
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        // 加载API密钥数量
+        const keysResponse = await fetch('/admin/api/keys');
+        if (keysResponse.ok) {
+          const keysData = await keysResponse.json();
+          if (keysData.success) {
+            document.getElementById('api-key-count').textContent = keysData.data.length;
+          }
+        }
+      } catch (error) {
+        console.error('加载控制台数据失败:', error);
+        showErrorNotification('加载数据失败，请检查网络连接');
+        window.location.href = '/admin/login';
+      }
+    }
+    
+    // 加载API密钥
+    async function loadApiKeys() {
+      const container = document.getElementById('api-keys-container');
+      container.innerHTML = '<div class="loader-container"><span class="loader"></span></div>';
+      
+      try {
+        const response = await fetch('/admin/api/keys');
+        
+        if (response.status === 401) {
+          // 如果未授权，重定向到登录页面
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.success) {
+            if (data.data.length === 0) {
+              container.innerHTML = `
+                <div class="text-center p-5">
+                  <i class="bi bi-key-fill text-muted" style="font-size: 48px;"></i>
+                  <h5 class="mt-3">暂无API密钥</h5>
+                  <p class="text-muted">点击"创建新密钥"按钮来添加第一个API密钥</p>
+                </div>
+              `;
+              return;
+            }
+            
+            // 创建表格 - 桌面版
+            const desktopTable = `
+              <div class="table-responsive d-none d-md-block">
+                <table class="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th>名称</th>
+                      <th>密钥</th>
+                      <th>创建时间</th>
+                      <th>过期时间</th>
+                      <th>使用次数</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.data.map(key => {
+                      // 格式化日期
+                      const createdAt = new Date(key.createdAt).toLocaleString();
+                      const expiresAt = key.expiresAt ? new Date(key.expiresAt).toLocaleString() : '永不过期';
+                      
+                      // 根据是否过期设置不同的样式
+                      const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date();
+                      const statusBadge = isExpired ? 
+                        '<span class="badge bg-danger">已过期</span>' : 
+                        '<span class="badge bg-success">有效</span>';
+                      
+                      return `
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-key-fill text-primary me-2"></i>
+                              ${key.name}
+                            </div>
+                          </td>
+                          <td><span class="api-key">${key.key}</span></td>
+                          <td><small>${createdAt}</small></td>
+                          <td>
+                            <small>${expiresAt}</small>
+                            ${statusBadge}
+                          </td>
+                          <td>
+                            <span class="badge bg-info">${key.usageCount || 0}</span>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteApiKey('${key.id}')">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            
+            // 创建卡片列表 - 移动版
+            const mobileCards = `
+              <div class="d-md-none">
+                ${data.data.map(key => {
+                  // 格式化日期
+                  const createdAt = new Date(key.createdAt).toLocaleString();
+                  const expiresAt = key.expiresAt ? new Date(key.expiresAt).toLocaleString() : '永不过期';
+                  
+                  // 根据是否过期设置不同的样式
+                  const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date();
+                  const statusBadge = isExpired ? 
+                    '<span class="badge bg-danger">已过期</span>' : 
+                    '<span class="badge bg-success">有效</span>';
+                  
+                  return `
+                    <div class="card mb-3">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <h5 class="card-title mb-0">
+                            <i class="bi bi-key-fill text-primary me-2"></i>
+                            ${key.name}
+                          </h5>
+                          <div>
+                            ${statusBadge}
+                          </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                          <small class="text-muted">密钥:</small>
+                          <div class="bg-light p-2 rounded mt-1">
+                            <code class="api-key">${key.key}</code>
+                          </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                          <div class="col-6">
+                            <small class="text-muted">创建时间:</small>
+                            <div>${createdAt}</div>
+                          </div>
+                          <div class="col-6">
+                            <small class="text-muted">过期时间:</small>
+                            <div>${expiresAt}</div>
+                          </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <small class="text-muted">使用次数:</small>
+                            <span class="badge bg-info ms-2">${key.usageCount || 0}</span>
+                          </div>
+                          <button class="btn btn-sm btn-danger" onclick="deleteApiKey('${key.id}')">
+                            <i class="bi bi-trash"></i> 删除
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+            
+            container.innerHTML = desktopTable + mobileCards;
+          }
+        } else {
+          throw new Error('获取API密钥失败');
+        }
+      } catch (error) {
+        console.error('加载API密钥失败:', error);
+        container.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i> 加载API密钥失败
+            <p class="small mb-0">请刷新页面重试</p>
+          </div>
+        `;
+      }
+    }
+    
+    // 创建API密钥
+    async function createApiKey(mode) {
+      // 确定要使用的元素ID前缀
+      const prefix = mode === 'mobile' ? 'mobile-' : '';
+      
+      const name = document.getElementById(`${prefix}key-name`).value;
+      const expiresAt = document.getElementById(`${prefix}key-expires`).value;
+      
+      if (!name) {
+        alert('请输入密钥名称');
+        return;
+      }
+      
+      const createBtn = document.getElementById(`${prefix}create-key-btn`);
+      const originalBtnText = createBtn.innerHTML;
+      createBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 创建中...';
+      createBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/admin/api/keys', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name,
+            expiresAt: expiresAt || null
+          })
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            document.getElementById(`${prefix}new-key-result`).classList.remove('d-none');
+            document.getElementById(`${prefix}new-key-value`).textContent = data.data.key;
+            
+            if (mode === 'desktop') {
+              document.getElementById('create-key-btn').style.display = 'none';
+            } else {
+              // 显示结果，隐藏创建和取消按钮
+              document.getElementById('mobile-create-key-btn').style.display = 'none';
+              document.getElementById('mobile-cancel-btn').style.display = 'none';
+            }
+            
+            // 加载最新的API密钥列表
+            loadApiKeys();
+            
+            // 更新控制台信息
+            loadDashboardData();
+          }
+        } else {
+          alert('创建API密钥失败: ' + (await response.json()).message);
+        }
+      } catch (error) {
+        console.error('创建API密钥失败:', error);
+        alert('创建API密钥失败: ' + error.message);
+      } finally {
+        createBtn.innerHTML = originalBtnText;
+        createBtn.disabled = false;
+      }
+    }
+    
+    // 删除API密钥
+    async function deleteApiKey(id) {
+      if (!confirm('确定要删除此API密钥吗？此操作不可撤销。')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/admin/api/keys/${id}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // 显示成功通知
+            showSuccessNotification('API密钥已成功删除');
+            
+            // 重新加载API密钥列表
+            loadApiKeys();
+            
+            // 更新控制台信息
+            loadDashboardData();
+          }
+        } else {
+          throw new Error('删除API密钥失败');
+        }
+      } catch (error) {
+        console.error('删除API密钥失败:', error);
+        showErrorNotification('删除API密钥失败，请重试');
+      }
+    }
+    
+    // 加载设置
+    async function loadSettings() {
+      try {
+        const response = await fetch('/admin/api/settings');
+        
+        if (response.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            document.getElementById('openai-model-select').value = data.data.openaiModel || 'gpt-3.5-turbo';
+          }
+        }
+      } catch (error) {
+        console.error('加载设置失败:', error);
+        showErrorNotification('加载设置失败，请重试');
+      }
+    }
+    
+    // 保存设置
+    async function saveSettings() {
+      const settings = {
+        openaiModel: document.getElementById('openai-model-select').value
+      };
+      
+      const saveBtn = document.querySelector('#settings-form button[type="submit"]');
+      const originalBtnText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 保存中...';
+      saveBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/admin/api/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(settings)
+        });
+        
+        if (response.status === 401) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            document.getElementById('settings-success').classList.remove('d-none');
+            setTimeout(() => {
+              document.getElementById('settings-success').classList.add('d-none');
+            }, 3000);
+            
+            // 更新控制台信息
+            loadDashboardData();
+          }
+        } else {
+          throw new Error('保存设置失败');
+        }
+      } catch (error) {
+        console.error('保存设置失败:', error);
+        showErrorNotification('保存设置失败，请重试');
+      } finally {
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+      }
+    }
+    
+    // 更改密码
+    async function changePassword() {
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      // 重置提示信息
+      document.getElementById('password-error').classList.add('d-none');
+      document.getElementById('password-success').classList.add('d-none');
+      
+      // 验证密码
+      if (newPassword !== confirmPassword) {
+        document.getElementById('password-error').innerHTML = '<i class="bi bi-exclamation-triangle"></i> 两次输入的新密码不一致';
+        document.getElementById('password-error').classList.remove('d-none');
+        return;
+      }
+      
+      const submitBtn = document.querySelector('#password-form button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 更改中...';
+      submitBtn.disabled = true;
+      
+      try {
+        const response = await fetch('/admin/api/change-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            currentPassword,
+            newPassword
+          })
+        });
+        
+        if (response.status === 401 && !response.url.includes('/admin/api/change-password')) {
+          window.location.href = '/admin/login';
+          return;
+        }
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          document.getElementById('password-success').classList.remove('d-none');
+          document.getElementById('password-form').reset();
+        } else {
+          document.getElementById('password-error').innerHTML = '<i class="bi bi-exclamation-triangle"></i> ' + (data.message || '更改密码失败');
+          document.getElementById('password-error').classList.remove('d-none');
+        }
+      } catch (error) {
+        console.error('更改密码失败:', error);
+        document.getElementById('password-error').innerHTML = '<i class="bi bi-exclamation-triangle"></i> 连接服务器失败，请稍后再试';
+        document.getElementById('password-error').classList.remove('d-none');
+      } finally {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // 登出
+    async function logout() {
+      try {
+        const response = await fetch('/admin/api/logout', {
+          method: 'POST'
+        });
+        
+        // 无论响应如何，都重定向到登录页面
+        window.location.href = '/admin/login';
+      } catch (error) {
+        console.error('登出失败:', error);
+        // 发生错误也重定向到登录页面
+        window.location.href = '/admin/login';
+      }
+    }
+    
+    // 显示成功通知
+    function showSuccessNotification(message) {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = 'position-fixed bottom-0 end-0 p-3';
+      notification.style.zIndex = '5000';
+      
+      notification.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header bg-success text-white">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong class="me-auto">成功</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            ${message}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // 自动关闭通知
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+    
+    // 显示错误通知
+    function showErrorNotification(message) {
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.className = 'position-fixed bottom-0 end-0 p-3';
+      notification.style.zIndex = '5000';
+      
+      notification.innerHTML = `
+        <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header bg-danger text-white">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong class="me-auto">错误</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            ${message}
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // 自动关闭通知
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
