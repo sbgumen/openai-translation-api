@@ -70,7 +70,7 @@ NODE_ENV=development             # 环境(development/production)
 
 # OpenAI配置
 OPENAI_API_KEY=your_openai_api_key  # OpenAI API密钥
-OPENAI_API_BASE_URL=https://api.openai.com  # API基础URL(可配置国内中转地址)
+OPENAI_API_BASE_URL=https://api.openai.com/v1  # API基础URL(可配置国内中转地址)
 
 # JWT配置
 JWT_SECRET=your_jwt_secret_key_change_this_in_production  # JWT密钥
