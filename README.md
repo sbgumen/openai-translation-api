@@ -47,7 +47,7 @@
 ### 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/openai-translation-api.git
+git clone https://github.com/sbgumen/openai-translation-api.git
 cd openai-translation-api
 ```
 
