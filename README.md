@@ -61,6 +61,7 @@ npm install
 
 ### 环境变量
 
+##添加配置
 复制`.env.example`文件为`.env`并配置以下变量:
 
 ```bash
